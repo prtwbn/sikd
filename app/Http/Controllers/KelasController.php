@@ -85,7 +85,7 @@ class KelasController extends Controller
     public function edit($id)
     {
         $item = Kelas::with(['prodi','dosen'])->findOrFail($id);
-    
+
         $prodi = Prodi::all();
         $dosenWali = Dosen::all();
 
@@ -141,24 +141,36 @@ class KelasController extends Controller
         ]);
     }
 
-    public function storeMahasiswa(Request $request)
-    {
-        $data = $request->all();
-        $jumlahMahasiswa = $request->jumlahMahasiswa + count($data['mahasiswa']);
+   public function storeMahasiswa(Request $request)
+{
+    $data = $request->all();
 
-        Kelas::where('id', $request->id)
-            ->update([
-                'jumlah' => $jumlahMahasiswa,
-        ]);
+    // Periksa apakah ada mahasiswa yang dipilih
+    if (empty($data['mahasiswa'])) {
+        return redirect()->back()->with('status', 'Tidak ada mahasiswa yang dipilih!');
+    }
 
-        foreach($data['mahasiswa'] as $index=>$value){
-            Mahasiswa::where('id', $data['mahasiswa'][$index])
+    // Hitung jumlah mahasiswa
+    $jumlahMahasiswa = $request->jumlahMahasiswa + count($data['mahasiswa']);
+
+    // Update jumlah mahasiswa di kelas
+    Kelas::where('id', $request->id)
+        ->update([
+            'jumlah' => $jumlahMahasiswa,
+    ]);
+
+    // Update data mahasiswa
+    foreach($data['mahasiswa'] as $index => $value) {
+        Mahasiswa::where('id', $data['mahasiswa'][$index])
             ->update([
                 'id_kelas' => $data['id'],
             ]);
-        }
-        return redirect('kelas/'. $data['id'])->with('status', 'Data berhasil ditambahkan!'); 
     }
+
+    // Redirect ke halaman kelas dengan status berhasil
+    return redirect('kelas/' . $data['id'])->with('status', 'Data berhasil ditambahkan!');
+}
+
 
     public function deleteMahasiswa(Request $request)
     {
@@ -176,6 +188,6 @@ class KelasController extends Controller
                 'jumlah' => $jumlahMahasiswa,
         ]);
 
-        return redirect('kelas/'. $data['idKelas'])->with('status', 'Data mahasiswa berhasil di hapus!'); 
+        return redirect('kelas/'. $data['idKelas'])->with('status', 'Data mahasiswa berhasil di hapus!');
     }
 }

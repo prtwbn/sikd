@@ -13,7 +13,7 @@
     <link href="{{ asset('assets-real/css/responsive.css') }}" rel="stylesheet" />
     <!-- font -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Nunito&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Nunito&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
     <title>Absen</title>
   </head>
 <body>
@@ -140,7 +140,7 @@
       <div class="col-md-3 offset-md-9">
       <table>
         <tr>
-          <td>Tanjungbalai, {{$tgl}}</td>
+          <td>Pontianak, {{$tgl}}</td>
         </tr>
         <tr>
           <td>Dosen Pengampu</td>

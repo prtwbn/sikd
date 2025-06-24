@@ -13,7 +13,7 @@
     <link href="{{ asset('assets-real/css/responsive.css') }}" rel="stylesheet" />
     <!-- font -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Nunito&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Nunito&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
     <title>Nilai</title>
   </head>
 <body>
@@ -21,8 +21,8 @@
   <div class="container">
     <div class="row">
         <div class="col-md-12 text-center align-self-center">
-            <h4>Universitas Perdana Sumatera Utara</h4>
-            <small>Jl. Di. Panjaitan No.10 Kota Tanjungbalai, Telp: 0623-41079, Fax: 0623-42366</small>
+            <h4>AMP PANCA BHAKTI PONTIANAK</h4>
+            <small>JI. Sultan Abdurrahman No. 8 Telp. (0561) 733716 - 577544</small>
         </div>
     </div>
     <div class="row">
@@ -148,7 +148,14 @@
           <tr>
             <td>Indeks Prestasi Semester</td>
             <td>:</td>
-            <td>{{ number_format(($totalBobot/$totalSks) * 4 , 2)}}</td>
+            <td>
+    @if ($totalSks > 0)
+        {{ number_format(($totalBobot / $totalSks) * 4, 2) }}
+    @else
+        0
+    @endif
+</td>
+
           </tr>
         </table>
       </div>
@@ -159,7 +166,7 @@
       <div class="col-md-3 offset-md-9">
       <table>
         <tr>
-          <td>Tanjungbalai, {{$tgl}}</td>
+          <td>Pontianak, {{$tgl}}</td>
         </tr>
         <tr>
           <td>Ketua Prgoram Studi</td>

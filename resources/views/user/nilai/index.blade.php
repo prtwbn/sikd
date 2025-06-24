@@ -126,7 +126,14 @@
           <tr>
             <td>Indeks Prestasi Semester</td>
             <td>:</td>
-            <td>{{ number_format(($totalBobot/$totalSks) * 4 , 2)}}</td>
+            <td>
+    @if ($totalSks > 0)
+        {{ number_format(($totalBobot / $totalSks) * 4, 2) }}
+    @else
+        0
+    @endif
+</td>
+
           </tr>
         </table>
       </div>

@@ -38,7 +38,7 @@ class KrsController extends Controller
         $items = Krs::where('id_mahasiswa', $mahasiswa->id)->where('id_ta', $ta->id)->with(['schedule'])->get();
         $totalSks = 0;
         $maxSks = 24;
-        foreach($items as $item){ 
+        foreach($items as $item){
             $totalSks = $totalSks + $item->schedule->matkul->sks;
         }
         // end data mahasiswa --1
@@ -84,7 +84,7 @@ class KrsController extends Controller
                 // tambahkan id krs yang sudah dibandingkan kedalam tabel absen
                 foreach($idKrs as $index => $id){
                     $data = Krs::where('id', $id)->get();
-    
+
                     Absen::create([
                         'id_krs' => $data[0]->id,
                         'id_mahasiswa' => $data[0]->id_mahasiswa,
@@ -118,52 +118,76 @@ class KrsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request)
-    {
-        // ambil session mahasiswa
-        $mahasiswa = $request->session()->get('mahasiswa');
-        // ambil tahun akademik aktif
-        $ta = TahunAkademik::where('status', 1)->first();
-        // ambil schedule yang sudah dimasukkan ke krs
-        $krsMahasiswas = Krs::where('id_mahasiswa', $mahasiswa->id)->where('id_ta', $ta->id)->with(['schedule'])->get();
-        // ambil id dari schedule yang sudah dimasukkan ke krs
-        foreach($krsMahasiswas as $index => $krsMahasiswa){
-            $idKrs[] = $krsMahasiswa->id_schedule;
-        }
-        // ambil total sks krs mahasiswa
-        $totalSks = 0;
-        $maxSks = 24;
-        foreach($krsMahasiswas as $item){ 
-            $totalSks = $totalSks + $item->schedule->matkul->sks;
-        }
-        // ambil seluruh schedule
-        $items = Schedule::where('id_ta', $ta->id)->where('id_prodi', $mahasiswa->id_prodi)->with(['matkul','ruangan','dosen'])->get();
-        // ambil seluruh id schedule
-        foreach($items as $index => $item){
-            $idSchedule[] = $item->id;
-        }
-        // bandingkan id schedule yang sudah ada di krs mahasiswa dengan id schedule keseluruhan
-        // agar didapat data schedule yg belum dipilih mahasiswa
-        if(count($krsMahasiswas) == 0){
-            $data = Schedule::where('id_ta', $ta->id)->where('id_prodi', $mahasiswa->id_prodi)->with(['matkul','ruangan','dosen'])->get();
-        }else{
-            $results = array_diff($idSchedule,$idKrs);
-            foreach($results as $result){
-                $datas[] = Schedule::where('id', $result)->get();
-            }
-            // dd($datas);
-            foreach($datas as $item){
-                $data[] = $item[0];
-            }
-        }
-        
-        return view('user.krs.create')->with([
-            'data' => $data,
-            'idMahasiswa' => $mahasiswa->id,
-            'idTa' => $ta->id,
-            'totalSks' => $totalSks,
-            'maxSks' => $maxSks,
-        ]);
+{
+    // Ambil session mahasiswa
+    $mahasiswa = $request->session()->get('mahasiswa');
+
+    // Ambil tahun akademik aktif
+    $ta = TahunAkademik::where('status', 1)->first();
+
+    // Ambil schedule yang sudah dimasukkan ke KRS
+    $krsMahasiswas = Krs::where('id_mahasiswa', $mahasiswa->id)->where('id_ta', $ta->id)->with(['schedule'])->get();
+
+    // Ambil id dari schedule yang sudah dimasukkan ke KRS
+    $idKrs = [];
+    foreach ($krsMahasiswas as $krsMahasiswa) {
+        $idKrs[] = $krsMahasiswa->id_schedule;
     }
+
+    // Hitung total SKS KRS mahasiswa
+    $totalSks = 0;
+    $maxSks = 24;
+    foreach ($krsMahasiswas as $item) {
+        $totalSks += $item->schedule->matkul->sks;
+    }
+
+    // Ambil seluruh schedule
+    $items = Schedule::where('id_ta', $ta->id)->where('id_prodi', $mahasiswa->id_prodi)->with(['matkul', 'ruangan', 'dosen'])->get();
+
+    // Ambil seluruh id schedule
+    $idSchedule = [];
+    foreach ($items as $item) {
+        $idSchedule[] = $item->id;
+    }
+
+    // Bandingkan id schedule yang sudah ada di KRS mahasiswa dengan id schedule keseluruhan
+    // Agar didapat data schedule yang belum dipilih mahasiswa
+    if (count($krsMahasiswas) == 0) {
+        // Jika belum ada KRS, ambil semua schedule
+        $data = Schedule::where('id_ta', $ta->id)->where('id_prodi', $mahasiswa->id_prodi)->with(['matkul', 'ruangan', 'dosen'])->get();
+    } else {
+        // Jika sudah ada KRS, bandingkan jadwal yang sudah diambil
+        $results = array_diff($idSchedule, $idKrs);
+
+        // Ambil data schedule yang belum dipilih
+        $datas = [];
+        foreach ($results as $result) {
+            // Ambil data schedule berdasarkan id yang ada di $results
+            $schedule = Schedule::where('id', $result)->with(['matkul', 'ruangan', 'dosen'])->first();
+            if ($schedule) {
+                $datas[] = $schedule;
+            }
+        }
+
+        // Jika data tidak kosong, ambil data dari $datas
+        if (!empty($datas)) {
+            $data = $datas;
+        } else {
+            // Jika data kosong, beri pesan atau beri data kosong
+            $data = [];
+        }
+    }
+
+    // Kirim data ke view
+    return view('user.krs.create')->with([
+        'data' => $data,
+        'idMahasiswa' => $mahasiswa->id,
+        'idTa' => $ta->id,
+        'totalSks' => $totalSks,
+        'maxSks' => $maxSks,
+    ]);
+}
+
 
     /**
      * Store a newly created resource in storage.
@@ -172,37 +196,48 @@ class KrsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $data = $request->all();
-        // ambil data schedule berdasarkan id yg dikirim dr create
-        foreach($data['matkul'] as $index => $item){
-            $schedule[] = Schedule::where('id', $item)->get();
-        }
-        // ambil data matkul berdasarkan id matkul yang ada pada data schedule
-        foreach($schedule as $index => $item){
-            $matkul[] = Matkul::where('id', $item[0]->id_matkul)->get();
-        }
-        // hitung total sks yg diambil
-        $sks = 0;
-        foreach($matkul as $index => $item){
-            $sks = $sks + $item[0]->sks;
-        }
-        // cek jika total sks lebih dari max sks
-        if($data['totalSks']+$sks > $data['maxSks']){
-            return redirect()->route('krs.index')->with('status', 'Jumlah sks matakuliah melebihi batas maximal pengambilan!');
-        }else{
-            // simpan krs
-            foreach($data['matkul'] as $index=>$value){
-                Krs::create([
-                    'id_mahasiswa' => $data['idMahasiswa'],
-                    'id_schedule' => $data['matkul'][$index],
-                    'id_ta' => $data['idTa'],
-                ]);
-            }
+{
+    $data = $request->all();
 
-            return redirect()->route('krs.index')->with('status', 'Krs berhasil ditambahkan!');
-        }
+    // Periksa apakah ada matkul yang dipilih
+    if (empty($data['matkul'])) {
+        return redirect()->route('krs.create')->with('status', 'Tidak ada matakuliah yang ditambahkan.');
     }
+
+    // Ambil data schedule berdasarkan id yang dikirim dari create
+    foreach($data['matkul'] as $index => $item) {
+        // Gunakan first() karena get() mengembalikan koleksi
+        $schedule[] = Schedule::where('id', $item)->first();
+    }
+
+    // Ambil data matkul berdasarkan id matkul yang ada pada data schedule
+    foreach($schedule as $index => $item) {
+        $matkul[] = Matkul::where('id', $item->id_matkul)->first();
+    }
+
+    // Hitung total SKS yang diambil
+    $sks = 0;
+    foreach($matkul as $index => $item) {
+        $sks += $item->sks;
+    }
+
+    // Cek jika total SKS lebih dari max SKS
+    if ($data['totalSks'] + $sks > $data['maxSks']) {
+        return redirect()->route('krs.index')->with('status', 'Jumlah sks matakuliah melebihi batas maksimal pengambilan!');
+    } else {
+        // Simpan KRS
+        foreach($data['matkul'] as $index => $value) {
+            Krs::create([
+                'id_mahasiswa' => $data['idMahasiswa'],
+                'id_schedule' => $data['matkul'][$index],
+                'id_ta' => $data['idTa'],
+            ]);
+        }
+
+        return redirect()->route('krs.index')->with('status', 'KRS berhasil ditambahkan!');
+    }
+}
+
 
     /**
      * Display the specified resource.
@@ -219,7 +254,7 @@ class KrsController extends Controller
         $items = Krs::where('id_mahasiswa', $mahasiswa->id)->where('id_ta', $ta->id)->with(['schedule'])->get();
         $totalSks = 0;
         $maxSks = 24;
-        foreach($items as $item){ 
+        foreach($items as $item){
             $totalSks = $totalSks + $item->schedule->matkul->sks;
         }
         return view('user.krs.cetak')->with([

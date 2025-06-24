@@ -21,7 +21,8 @@
   <link rel="icon" type="image/png" href="../assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Sistem Informasi Akademik Universitas Perdana
+    Sistem Informasi Akademik AMP PANCA BHAKTI PONTIANAK
+
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -32,7 +33,7 @@
   <link href="{{ asset('assets/css/material-dashboard.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/demo/demo.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" />
-  
+
 </head>
 
 <body class="dark-edition">

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-fluid">
-          <div class="row">
+        <div class="row">
             <div class="col-12">
               <a href="{{ route('prodi.index') }}" class="btn btn-success pull-left">
                 <i class="fa fa-arrow-left"></i>
@@ -25,32 +25,33 @@
                           <label for="exampleFormControlSelect1">Fakultas</label>
                           <select class="form-control @error('id_fakultas') is-invalid @enderror" id="exampleFormControlSelect1" name="id_fakultas">
                             @foreach ($fakultas as $itemF)
-                              @if ($item->id_fakultas == $itemF->id)
-                                <option value="{{ $itemF->id }}" selected>{{ $itemF->fakultas }}</option>
-                              @else
-                                <option value="{{ $itemF->id }}">{{ $itemF->fakultas }}</option>
-                              @endif
+                              <option value="{{ $itemF->id }}" {{ $item->id_fakultas == $itemF->id ? 'selected' : '' }}>
+                                {{ $itemF->fakultas }}
+                              </option>
                             @endforeach
                           </select>
                           @error('id_fakultas') <div class="text-muted">{{ $message }}</div> @enderror
                         </div>
                       </div>
+
                       <div class="col-md-4">
                         <div class="form-group">
                           <label class="bmd-label-floating">Kode Program Studi</label>
-                          <input type="text" class="form-control" name="kode_prodi" value="{{ old('kode_prodi') ? old('kode_prodi') : $item->kode_prodi }}" 
+                          <input type="text" class="form-control" name="kode_prodi" value="{{ old('kode_prodi') ? old('kode_prodi') : $item->kode_prodi }}"
                             class="form-control @error('kode_prodi') is-invalid @enderror">
                             @error('kode_prodi') <div class="text-muted">{{ $message }}</div> @enderror
                         </div>
                       </div>
+
                       <div class="col-md-4">
                         <div class="form-group">
                           <label class="bmd-label-floating">Program Studi</label>
-                          <input type="text" class="form-control" name="prodi" value="{{ old('prodi') ? old('prodi') : $item->prodi }}" 
+                          <input type="text" class="form-control" name="prodi" value="{{ old('prodi') ? old('prodi') : $item->prodi }}"
                             class="form-control @error('prodi') is-invalid @enderror">
                             @error('prodi') <div class="text-muted">{{ $message }}</div> @enderror
                         </div>
                       </div>
+
                       <div class="col-md-4">
                         <div class="form-group">
                           <label for="exampleFormControlSelect1">Jenjang</label>
@@ -64,17 +65,23 @@
                           @error('jenjang') <div class="text-muted">{{ $message }}</div> @enderror
                         </div>
                       </div>
+
                       <div class="form-group">
                           <label for="exampleFormControlSelect1">Ketua Program Studi</label>
                           <select class="form-control @error('ka_prodi') is-invalid @enderror" id="exampleFormControlSelect1" name="ka_prodi">
-                            <option value="{{ $item->ka_prodi }}">{{ $item->dosen['nama'] }}</option>
+                            <!-- Menampilkan dosen yang sudah dipilih sebelumnya -->
+                            <option value="{{ $item->ka_prodi }}">{{ $item->dosen ? $item->dosen->nama : 'Tidak Ada Dosen' }}</option>
+                            <!-- Menampilkan daftar dosen lain untuk dipilih -->
                             @foreach ($dosens as $itemD)
-                              <option value="{{ $itemD->id }}">{{ $itemD->nama }}</option>
+                              <option value="{{ $itemD->id }}" {{ $item->ka_prodi == $itemD->id ? 'selected' : '' }}>
+                                {{ $itemD->nama }}
+                              </option>
                             @endforeach
                           </select>
                           @error('ka_prodi') <div class="text-muted">{{ $message }}</div> @enderror
                         </div>
                     </div>
+
                     <button type="submit" class="btn btn-primary pull-right">Edit</button>
                     <div class="clearfix"></div>
                   </form>

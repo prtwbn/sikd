@@ -1,6 +1,6 @@
 @extends('user.layouts.layout')
 
-@section('content')    
+@section('content')
     <div class="container mt-4">
           <div class="row">
             <div class="col-12">

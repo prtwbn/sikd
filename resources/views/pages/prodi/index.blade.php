@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('content')    
+@section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-8">
@@ -65,15 +65,15 @@
                           <td>
                           {{ $item->jenjang }}
                           </td>
-                          <td>
-                          {{ $item->dosen['nama'] }}
+                           <td>
+                          {{ $item->dosen ? $item->dosen->nama : '-' }}
                           </td>
                           <td>
                             <a href="{{ route('prodi.edit', $item->id) }}" class="btn btn-primary btn-sm">
                                 <i class="fa fa-pencil"></i>
                             </a>
-                            <form action="{{ route('prodi.destroy', $item->id) }}" 
-                                    method="post" 
+                            <form action="{{ route('prodi.destroy', $item->id) }}"
+                                    method="post"
                                     class="d-inline">
                                 @csrf
                                 @method('delete')
